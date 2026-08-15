@@ -2737,7 +2737,13 @@ const CTAAnimation = {
   const LenisInit = {
     init() {
       if (typeof Lenis === "undefined") return;
-  
+
+      // На тач-устройствах (планшеты, тач-ноутбуки) ОС нередко транслирует
+      // однопальцевый свайп в синтетические wheel-события — Lenis их гасит
+      // своим smoothWheel, из-за чего скроллится только двумя пальцами.
+      // Отдаём таким устройствам нативный скролл вместо Lenis.
+      if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return;
+
       const lenisOptions = {
         ...(CONFIG.lenis || {}),
         lerp: 0.1,
