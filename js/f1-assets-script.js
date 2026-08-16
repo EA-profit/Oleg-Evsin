@@ -3205,14 +3205,15 @@ const ResizeHandler = {
     
     this.handler = Utils.debounce(() => {
       const newWidth = window.innerWidth;
-      const isMobile = newWidth < 768;
-      
-      // On mobile, only respond to WIDTH changes (orientation change)
-      // Ignore height-only changes (browser chrome hiding/showing)
-      if (isMobile && newWidth === this.lastWidth) {
+
+      // Реагируем только на изменение ШИРИНЫ (поворот экрана / ресайз окна).
+      // Высота меняется на любом устройстве, где браузер прячет адресную
+      // строку при скролле (Safari/Chrome — не только на телефонах, но и на
+      // планшетах вроде iPad), и это не повод перезагружать страницу.
+      if (newWidth === this.lastWidth) {
         return; // Ignore - this is just browser chrome
       }
-      
+
       this.lastWidth = newWidth;
 
       window.location.reload();
