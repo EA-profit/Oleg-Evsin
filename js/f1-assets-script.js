@@ -3202,14 +3202,30 @@ const ResizeHandler = {
 
   init() {
     this.lastWidth = window.innerWidth;
-    
+
+    const isTouchCapable =
+      (window.matchMedia && (window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(any-pointer: coarse)").matches)) ||
+      navigator.maxTouchPoints > 0 ||
+      "ontouchstart" in window;
+
+    if (isTouchCapable) {
+      // "resize" на тач-устройствах — ненадёжный сигнал: скролл прячет/
+      // показывает адресную строку (Safari/Chrome), а ширина вьюпорта при
+      // этом может "дрожать" на 1px — сравнение с lastWidth не спасает и
+      // страница перезагружается от любого свайпа, иногда даже дважды подряд.
+      // Настоящая смена ширины на тач-устройстве — это поворот экрана,
+      // для него есть отдельное событие, не зависящее от скролла.
+      this.handler = Utils.debounce(() => {
+        window.location.reload();
+      }, CONFIG.resizeDebounce);
+
+      Utils.addEvent(window, 'orientationchange', this.handler);
+      return;
+    }
+
     this.handler = Utils.debounce(() => {
       const newWidth = window.innerWidth;
 
-      // Реагируем только на изменение ШИРИНЫ (поворот экрана / ресайз окна).
-      // Высота меняется на любом устройстве, где браузер прячет адресную
-      // строку при скролле (Safari/Chrome — не только на телефонах, но и на
-      // планшетах вроде iPad), и это не повод перезагружать страницу.
       if (newWidth === this.lastWidth) {
         return; // Ignore - this is just browser chrome
       }
