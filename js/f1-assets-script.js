@@ -2742,7 +2742,15 @@ const CTAAnimation = {
       // однопальцевый свайп в синтетические wheel-события — Lenis их гасит
       // своим smoothWheel, из-за чего скроллится только двумя пальцами.
       // Отдаём таким устройствам нативный скролл вместо Lenis.
-      if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return;
+      // "pointer: coarse" тут недостаточно: на гибридных Windows-планшетах
+      // с мышью/трекпадом браузер считает основным указателем мышь и репортит
+      // "pointer: fine", хотя тач-экран есть — поэтому проверяем ещё и
+      // "any-pointer: coarse" и maxTouchPoints напрямую.
+      const isTouchCapable =
+        (window.matchMedia && (window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(any-pointer: coarse)").matches)) ||
+        navigator.maxTouchPoints > 0 ||
+        "ontouchstart" in window;
+      if (isTouchCapable) return;
 
       const lenisOptions = {
         ...(CONFIG.lenis || {}),
