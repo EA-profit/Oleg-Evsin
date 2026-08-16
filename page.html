@@ -59,6 +59,23 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* Фикс нативного скролла на тач-устройствах (iPad и т.п.).
+   Базовый Webflow-стиль ставит body{overflow:clip}, а mobile-override
+   (overflow:visible) есть только до 767px — на iPad (ширина >=768)
+   не применяется. По CSS-спеке overflow с body пробрасывается на
+   вьюпорт, когда overflow html:visible — и клип на body блокирует
+   именно НАТИВНЫЙ жестовый скролл (палец по экрану), хотя JS-скролл
+   (Lenis на десктопе, wheel-подобный 2-пальцевый жест в WebKit на
+   iPad) продолжает работать в обход. overflow-x оставляем clip, чтобы
+   не появился горизонтальный скролл от декоративных элементов
+   (например гигантский фоновый логотип), которые бывают шире экрана. */
+@media (any-pointer: coarse) and (min-width: 768px) {
+  body {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+}
+
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -637,7 +654,7 @@ body {
   <script src="js/swiper-bundle.min.js"></script>
 
 
-	<script src="js/f1-assets-script.js?v=6"></script>
+	<script src="js/f1-assets-script.js?v=7"></script>
   
 <script>
  	document.querySelectorAll('a[href^="#"]').forEach(link => {
